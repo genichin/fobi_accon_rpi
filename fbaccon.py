@@ -108,7 +108,7 @@ while True:
             rect_obj.center = (160, 240)
             displaysurf.blit(surface_obj , rect_obj)
 
-        surface_obj = font40.render("출근", 1, (255,255,255))
+        surface_obj = font40.render("퇴근", 1, (255,255,255))
         rect_obj = surface_obj.get_rect()
         rect_obj.center = (160, 450)
         displaysurf.blit(surface_obj , rect_obj)
