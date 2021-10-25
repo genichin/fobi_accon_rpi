@@ -23,37 +23,30 @@ nfc_thread.daemon = True
 nfc_thread.start()
 
 pygame.init()
-pygame.display.set_caption('Hello, world!') # 창 제목 설정
-displaysurf = pygame.display.set_mode((600, 400), 0, 32) # 메인 디스플레이를 설정한다
-clock = pygame.time.Clock() # 시간 설정
+pygame.display.set_caption('fobi accon') # 창 제목 설정
+displaysurf = pygame.display.set_mode((320, 480), 0, 32) # 메인 디스플레이를 설정한다
 
+font16 = pygame.font.Font("font.ttf", 16)
 font24 = pygame.font.Font("font.ttf", 24)
 font30 = pygame.font.Font("font.ttf", 30)
 font40 = pygame.font.Font("font.ttf", 40)
 
-#gulimfont = pygame.font.SysFont('DejaVuSerif', 70) # 서체 설정
-gulimfont = pygame.font.SysFont(None, 70) # 서체 설정
-helloworld = gulimfont.render('Hello, world!', 1, (0,0,0)) 
-# .render() 함수에 내용과 안티앨리어싱, 색을 전달하여 글자 이미지 생성
-hellorect = helloworld.get_rect() # 생성한 이미지의 rect 객체를 가져온다
-hellorect.center = (600 / 2, 400 / 2) # 해당 rect의 중앙을 화면 중앙에 맞춘다
-clock_font = pygame.font.SysFont(None, 24) # 서체 설정
-clock_rect = pygame.Rect(0,0,240,40)
 bgimg = pygame.image.load('320x480.bmp')
 bgimg_rect = bgimg.get_rect()
 
-'''
-while True: # 아래의 코드를 무한 반복한다.
-    displaysurf.fill((255,255,255)) # displaysurf를 하얀색으로 채운다
-    displaysurf.blit(helloworld, hellorect) # displaysurf의 hellorect의 위치에 helloworld를 뿌린다
-    
-    pygame.display.update() # 화면을 업데이트한다
-    clock.tick(30) # 화면 표시 회수 설정만큼 루프의 간격을 둔다
-'''
+message_rect = pygame.Rect(10,160,300,160)
+time_rect = pygame.Rect(0,0,320,100)
+navi_rect = pygame.Rect(10,410,300,60)
+inout_mode = 0
 
+inout_str = ['출근', '퇴근']
+names = ['홍길동', '김철수', '이영희']
+
+old_date_str = ""
 old_time_str = ""
 msg_text = ""
 msg_text_time = time.time()
+inout_change_time = time.time()
 
 display_update = False
 
@@ -63,7 +56,8 @@ while True:
         print(evt)
         if evt == fba_common.EVENT_BLE_DETECTED :
             print("BLE :", data["value"])
-            msg_text = "BLE : " + data["value"].decode('utf-8')
+            #msg_text = "BLE : " + data["value"].decode('utf-8')
+            msg_text = names[data["value"][0] % 3] + ' ' + inout_str[inout_mode]
             msg_text_time = time.time()
             #GPIO.output(23, GPIO.HIGH)
             #time.sleep(0.2)
@@ -73,7 +67,8 @@ while True:
             display_update = True
         elif evt == fba_common.EVENT_NFC_DETECTED :
             print("NFC :", data)
-            msg_text = "NFC : \n" + data.decode('utf-8')
+            #msg_text = "NFC : \n" + data.decode('utf-8')
+            msg_text = names[data[0] % 3] + ' ' + inout_str[inout_mode]
             msg_text_time = time.time()
             #GPIO.output(23, GPIO.HIGH)
             #time.sleep(0.2)
@@ -84,12 +79,25 @@ while True:
     except Exception as e:
         pass
 
+    now = time.time()
+
+    if now - inout_change_time > 5 :
+        inout_mode = (inout_mode + 1)%2
+        inout_change_time  = now
+        display_update = True
+    
+
     if msg_text != "" :
-        if time.time() - msg_text_time > 3 :
+        if now - msg_text_time > 3 :
             msg_text = ""
             display_update = True
     
-    new_time_str = time.strftime('%c', time.localtime(time.time()))
+    new_date_str = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+    if new_date_str != old_date_str :
+        display_update = True
+        old_date_str = new_date_str
+
+    new_time_str = time.strftime('%I:%M', time.localtime(time.time()))
     if new_time_str != old_time_str :
         display_update = True
         old_time_str = new_time_str
@@ -97,20 +105,38 @@ while True:
     if display_update == True:
         displaysurf.blit(bgimg, bgimg_rect)
 
-        surface_obj = font24.render(old_time_str, 1, (255,255,255))
+        shape_surf = pygame.Surface(pygame.Rect(time_rect).size, pygame.SRCALPHA)
+        pygame.draw.rect(shape_surf, (0,0,0,128), shape_surf.get_rect())
+        displaysurf.blit(shape_surf, time_rect)
+
+        surface_obj = font16.render(old_date_str, 1, (255,255,255))
         rect_obj = surface_obj.get_rect()
         rect_obj.center = (160, 15)
+        rect_obj.right = 310
         displaysurf.blit(surface_obj , rect_obj)
 
+        surface_obj = font40.render(old_time_str, 1, (255,255,255))
+        rect_obj = surface_obj.get_rect()
+        rect_obj.center = (160, 60)
+        displaysurf.blit(surface_obj , rect_obj)
+
+
         if msg_text != "" :
-            surface_obj = font30.render(msg_text, 1, (255,255,255))
+            shape_surf = pygame.Surface(pygame.Rect(message_rect).size, pygame.SRCALPHA)
+            pygame.draw.rect(shape_surf, (255,255,255,128), shape_surf.get_rect(), border_radius=5)
+            displaysurf.blit(shape_surf, message_rect)
+            surface_obj = font30.render(msg_text, 1, (0,0,0))
             rect_obj = surface_obj.get_rect()
             rect_obj.center = (160, 240)
             displaysurf.blit(surface_obj , rect_obj)
 
-        surface_obj = font40.render("퇴근", 1, (255,255,255))
+        shape_surf = pygame.Surface(pygame.Rect(navi_rect).size, pygame.SRCALPHA)
+        pygame.draw.rect(shape_surf, (255,255,255,128), shape_surf.get_rect(), border_radius=5)
+        displaysurf.blit(shape_surf, navi_rect)
+
+        surface_obj = font30.render(inout_str[inout_mode], 1, (0,0,0))
         rect_obj = surface_obj.get_rect()
-        rect_obj.center = (160, 450)
+        rect_obj.center = (160, 440)
         displaysurf.blit(surface_obj , rect_obj)
 
         pygame.display.update() # 화면을 업데이트한다
