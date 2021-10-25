@@ -30,12 +30,14 @@ font16 = pygame.font.Font("font.ttf", 16)
 font24 = pygame.font.Font("font.ttf", 24)
 font30 = pygame.font.Font("font.ttf", 30)
 font40 = pygame.font.Font("font.ttf", 40)
+font50 = pygame.font.Font("font.ttf", 50)
+font80 = pygame.font.Font("font.ttf", 80)
 
 bgimg = pygame.image.load('320x480.bmp')
 bgimg_rect = bgimg.get_rect()
 
 message_rect = pygame.Rect(10,160,300,160)
-time_rect = pygame.Rect(0,0,320,100)
+time_rect = pygame.Rect(0,0,320,200)
 navi_rect = pygame.Rect(10,410,300,60)
 inout_mode = 0
 enable_bg = 1
@@ -114,7 +116,7 @@ while True:
             displaysurf.blit(bgimg, bgimg_rect)
         else :
             shape_surf = pygame.Surface(pygame.Rect(bgimg_rect).size, pygame.SRCALPHA)
-            pygame.draw.rect(shape_surf, (0,0,0,0), shape_surf.get_rect())
+            pygame.draw.rect(shape_surf, (0,0,0,255), shape_surf.get_rect())
             displaysurf.blit(shape_surf, bgimg_rect)
 
         shape_surf = pygame.Surface(pygame.Rect(time_rect).size, pygame.SRCALPHA)
@@ -127,9 +129,9 @@ while True:
         rect_obj.right = 310
         displaysurf.blit(surface_obj , rect_obj)
 
-        surface_obj = font40.render(old_time_str, 1, (255,255,255))
+        surface_obj = font80.render(old_time_str, 1, (255,255,255))
         rect_obj = surface_obj.get_rect()
-        rect_obj.center = (160, 60)
+        rect_obj.center = (160, 100)
         displaysurf.blit(surface_obj , rect_obj)
 
 
