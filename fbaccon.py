@@ -38,6 +38,7 @@ message_rect = pygame.Rect(10,160,300,160)
 time_rect = pygame.Rect(0,0,320,100)
 navi_rect = pygame.Rect(10,410,300,60)
 inout_mode = 0
+enable_bg = 1
 
 inout_str = ['출근', '퇴근']
 names = ['홍길동', '김철수', '이영희']
@@ -47,6 +48,7 @@ old_time_str = ""
 msg_text = ""
 msg_text_time = time.time()
 inout_change_time = time.time()
+bg_onoff_time = time.time()
 
 display_update = False
 
@@ -85,7 +87,12 @@ while True:
         inout_mode = (inout_mode + 1)%2
         inout_change_time  = now
         display_update = True
-    
+
+    if now - bg_onoff_time > 7 :
+        enable_bg = (enable_bg + 1)%2
+        bg_onoff_time  = now
+        display_update = True
+
 
     if msg_text != "" :
         if now - msg_text_time > 3 :
@@ -103,7 +110,12 @@ while True:
         old_time_str = new_time_str
 
     if display_update == True:
-        displaysurf.blit(bgimg, bgimg_rect)
+        if enable_bg == 1 :
+            displaysurf.blit(bgimg, bgimg_rect)
+        else 
+            shape_surf = pygame.Surface(pygame.Rect(bgimg_rect).size, pygame.SRCALPHA)
+            pygame.draw.rect(shape_surf, (0,0,0,0), shape_surf.get_rect())
+            displaysurf.blit(shape_surf, bgimg_rect)
 
         shape_surf = pygame.Surface(pygame.Rect(time_rect).size, pygame.SRCALPHA)
         pygame.draw.rect(shape_surf, (0,0,0,128), shape_surf.get_rect())
