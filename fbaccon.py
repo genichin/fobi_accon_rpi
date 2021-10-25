@@ -112,7 +112,7 @@ while True:
     if display_update == True:
         if enable_bg == 1 :
             displaysurf.blit(bgimg, bgimg_rect)
-        else 
+        else :
             shape_surf = pygame.Surface(pygame.Rect(bgimg_rect).size, pygame.SRCALPHA)
             pygame.draw.rect(shape_surf, (0,0,0,0), shape_surf.get_rect())
             displaysurf.blit(shape_surf, bgimg_rect)
