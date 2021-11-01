@@ -8,6 +8,7 @@ import time
 import fba_common
 import RPi.GPIO as GPIO
 import pygame
+import httpclient
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(23, GPIO.OUT)
@@ -68,17 +69,21 @@ while True:
             #GPIO.output(23, GPIO.LOW)
             #displaysurf.fill((255,255,255)) # displaysurf를 하얀색으로 채운다
             #displaysurf.blit(pygame.font.SysFont("Eunjin", 70).render(data["value"], 1, (0,0,0)) , hellorect) # displaysurf의 hellorect의 위치에 helloworld를 뿌린다
+            print("httpclient")
+            httpclient.send(data["value"].decode('utf-8'), 'BLE')
             display_update = True
         elif evt == fba_common.EVENT_NFC_DETECTED :
             print("NFC :", data)
             #msg_text = "NFC : \n" + data.decode('utf-8')
-            msg_text = names[data[0] % 3] + ' ' + inout_str[inout_mode]
+            msg_text = names[bytes.fromhex(data)[0] % 3] + ' ' + inout_str[inout_mode]
             msg_text_time = time.time()
+            print("httpclient")
             #GPIO.output(23, GPIO.HIGH)
             #time.sleep(0.2)
             #GPIO.output(23, GPIO.LOW)
             #displaysurf.fill((255,255,255)) # displaysurf를 하얀색으로 채운다
             #displaysurf.blit(pygame.font.SysFont("Eunjin", 70).render(data, 1, (0,0,0)) , hellorect) # displaysurf의 hellorect의 위치에 helloworld를 뿌린다
+            httpclient.send(data, 'NFC')
             display_update = True
     except Exception as e:
         pass
